@@ -1,5 +1,3 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
@@ -7,26 +5,32 @@ exports.handler = async (event) => {
 
   try {
     const { email } = JSON.parse(event.body);
+    const key = process.env.STRIPE_SECRET_KEY;
 
-    const customers = await stripe.customers.list({
-      email: email.toLowerCase().trim(),
-      limit: 1
-    });
+    // 1. Procura customer pelo email
+    const custRes = await fetch(
+      `https://api.stripe.com/v1/customers?email=${encodeURIComponent(email)}&limit=1`,
+      { headers: { Authorization: `Bearer ${key}` } }
+    );
+    const custData = await custRes.json();
 
-    if (!customers.data.length) {
+    if (!custData.data || custData.data.length === 0) {
       return {
         statusCode: 200,
         body: JSON.stringify({ active: false, reason: 'no_customer' })
       };
     }
 
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customers.data[0].id,
-      status: 'active',
-      limit: 1
-    });
+    const customerId = custData.data[0].id;
 
-    const active = subscriptions.data.length > 0;
+    // 2. Verifica subscrições ativas
+    const subRes = await fetch(
+      `https://api.stripe.com/v1/subscriptions?customer=${customerId}&status=active&limit=1`,
+      { headers: { Authorization: `Bearer ${key}` } }
+    );
+    const subData = await subRes.json();
+
+    const active = subData.data && subData.data.length > 0;
 
     return {
       statusCode: 200,
