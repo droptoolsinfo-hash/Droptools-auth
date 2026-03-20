@@ -101,30 +101,34 @@
   </div>
 
   <script>
-    async function verificar() {
-      const email = document.getElementById('email').value.trim();
-      const msg = document.getElementById('msg');
-      const btn = document.getElementById('btn');
+    async function doLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const btn   = document.getElementById("loginBtn");
+  const err   = document.getElementById("loginError");
+  if (!email) { showErr("Introduz o teu email."); return; }
+  btn.textContent = "A verificar...";
+  btn.disabled = true;
+  err.style.display = "none";
 
-      if (!email) {
-        msg.textContent = 'Insere o teu email.';
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'A verificar...';
-      msg.textContent = '';
-      msg.className = 'msg';
-
-      try {
-        const res = await fetch('/.netlify/functions/check-subscription', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-
-        const data = await res.json();
-
+  try {
+    const res  = await fetch("/.netlify/functions/check-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.active) {
+      localStorage.setItem("dt_email", email);
+      showDashboard(email);
+    } else {
+      showErr("Sem subscrição ativa. Subscreve em drop-tools.com");
+    }
+  } catch {
+    showErr("Erro de ligação. Tenta novamente.");
+  }
+  btn.textContent = "Entrar";
+  btn.disabled = false;
+}
         if (data.active) {
           msg.textContent = '✓ Subscrição válida! A redirecionar...';
           msg.classN
