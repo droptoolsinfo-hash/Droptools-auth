@@ -487,7 +487,7 @@ async function checkSession() {
   const token = localStorage.getItem("dt_token");
   const email = localStorage.getItem("dt_email");
   if (!token || !email) return;
-  // MODO TEMPORÁRIO — entra directo se tiver token guardado
+  // modo removido
   showDashboard(email);
 }
 
