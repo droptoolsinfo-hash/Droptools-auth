@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Login</title></head>
+<body>
+  <h2>Acesso à área de membros</h2>
+  <input type="email" id="email" placeholder="O teu email de subscrição">
+  <button onclick="verificar()">Entrar</button>
+  <p id="msg"></p>
+
+  <script>
+  async function verificar() {
+    const email = document.getElementById('email').value;
+    const msg = document.getElementById('msg');
+    msg.textContent = 'A verificar...';
+
+    const res = await fetch('/.netlify/functions/check-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if (data.active) {
+      sessionStorage.setItem('email', email);
+      window.location.href = '/dashboard.html';
+    } else {
+      msg.textContent = '❌ Sem subscrição ativa. Subscreve em drop-tools.com';
+    }
+  }
+  </script>
+</body>
+</html>
