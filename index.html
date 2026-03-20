@@ -283,7 +283,7 @@
           <h3>Onde encontro os dados da minha conta?</h3>
           <p>Após o checkout, os dados de acesso serão enviados para o email que indicaste.</p>
           <ul>
-            <li>Abre o teu email e procura por mensagem de <strong style="color:var(--accent)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0440766b74706b6b68776d6a626b446369656d682a676b69">[email&#160;protected]</a></strong>.</li>
+            <li>Abre o teu email e procura por mensagem de <strong style="color:var(--accent)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2d695f425d594242415e44434b426d4a404c4441034e4240">[email&#160;protected]</a></strong>.</li>
             <li>No email encontrarás: link para o Discord, username e password gerada automaticamente.</li>
             <li>Guarda estes dados num local seguro.</li>
           </ul>
@@ -440,7 +440,7 @@ async function doLogin() {
   err.style.display = "none";
 
   try {
-    const res  = await fetch("/.netlify/functions/check-subscription", {
+    const res = await fetch("/.netlify/functions/check-subscription", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })
@@ -474,25 +474,13 @@ function showDashboard(email) {
 }
 
 async function doLogout() {
-  const token = localStorage.getItem("dt_token");
-  if (token) {
-    try { await fetch(BACKEND_URL+"/auth/logout",{method:"POST",headers:{"Authorization":"Bearer "+token}}); } catch {}
-  }
-  localStorage.removeItem("dt_token");
   localStorage.removeItem("dt_email");
   location.reload();
 }
 
 async function checkSession() {
-  const token = localStorage.getItem("dt_token");
   const email = localStorage.getItem("dt_email");
-  if (!token || !email) return;
-  try {
-    const res = await fetch("/.netlify/functions/check-subscription",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});
-    const data = await res.json();
-    if(data.active){localStorage.setItem("dt_email",email);showDashboard(email);}else{showErr("Sem subscricao ativa.");}
-  }catch{showErr("Erro de ligacao.");}
-  btn.textContent="Entrar";btn.disabled=false;
+  if (!email) return;
   showDashboard(email);
 }
 
